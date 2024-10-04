@@ -1,10 +1,9 @@
-from func import Products
-
-import tkinter as tk
+from methods import Products
+import tkinter as tk 
 from tkinter import ttk, END
 from tkinter.messagebox import showinfo
 
-products = []
+product_list = []
 
 root = tk.Tk()
 root.title('Ražas uzskaite')
@@ -15,93 +14,203 @@ frame = ttk.Frame(root)
 
 options = {'padx': 5, 'pady': 5}
 
-product_name_label = ttk.Label(frame, text='Name')
-product_name_label.grid(column=0, row=0, sticky='E', **options)
+def show_label():
+    product_type1 = product_type.get()
+    if product_type1 == "Dārzenis" or product_type1 == "Auglis":
+        product_name_label.configure(text='Produkta nosaukums')
+    elif product_type1 == "Ābols":
+        product_name_label.configure(text='Ābolu šķirne')
 
-product_type_label = ttk.Label(frame, text='Sex')
-product_type_label.grid(column=0, row=1, sticky='E', **options)
-
-product_amount_label = ttk.Label(frame, text='Age')
-product_amount_label.grid(column=0, row=3, sticky='E', **options)
-
-product_name = tk.StringVar()
-product_name = ttk.Entry(frame, textvariable=product_name)
-product_name.grid(column=1, row=0, **options)
-product_name.focus()
+product_type_label = ttk.Label(frame, text='Produkta tips')
+product_type_label.grid(column=0, row=0, rowspan=3, sticky='W', **options)
 
 product_type = tk.StringVar(value="None")
-R1 = tk.Radiobutton(frame, text="Dārzenis", variable=product_type, value="Dārzenis")
-R1.grid(column=1, row=1, **options)
-R2 = tk.Radiobutton(frame, text="Auglis", variable=product_type, value="Auglis")
-R2.grid(column=1, row=2, **options)
+R1 = tk.Radiobutton(frame, text="Dārzenis", variable=product_type, value="Dārzenis", command=show_label)
+R1.grid(column=1, row=0, **options)
+R2 = tk.Radiobutton(frame, text="Auglis", variable=product_type, value="Auglis", command=show_label)
+R2.grid(column=1, row=1, **options)
+R3 = tk.Radiobutton(frame, text="Ābols", variable=product_type, value="Ābols", command=show_label)
+R3.grid(column=1, row=2, **options)
 
-product_amount = tk.IntVar(value="0")
-product_amount = ttk.Entry(frame, textvariable=product_amount)
-product_amount.grid(column=1, row=3, **options)
+product_name_label = ttk.Label(frame, width=19, text='Produkta nosaukums')
+product_name_label.grid(column=0, row=3, sticky='W', **options)
+
+product_breed_name = ttk.Entry(frame)
+product_breed_name.grid(column=1, row=3, **options)
+product_breed_name.focus()
+
+product_amount_label = ttk.Label(frame, text='Produkta daudzums')
+product_amount_label.grid(column=0, row=4, sticky='W', **options)
+
+product_amount = ttk.Entry(frame)
+product_amount.grid(column=1, row=4, **options)
 product_amount.focus()
 
-new_product_name = tk.StringVar()
-new_product_name = ttk.Entry(frame, textvariable=new_product_name)
-new_product_name.grid(column=0, row=5, **options)
+new_product_name = ttk.Entry(frame)
+new_product_name.grid(column=0, row=6, **options)
 new_product_name.focus()
 
-new_product_amount = tk.StringVar()
-new_product_amount = ttk.Entry(frame, textvariable=new_product_amount)
-new_product_amount.grid(column=4, row=5, **options)
+new_product_amount = ttk.Entry(frame)
+new_product_amount.grid(column=0, row=7, **options)
 new_product_amount.focus()
 
+jam_amount = ttk.Entry(frame)
+jam_amount.grid(column=0, row=8, **options)
+jam_amount.focus()
+
 def add_button_clicked():
-    product_amount1 = product_amount.get()
+    product_breed_name1 = product_breed_name.get()
     product_type1 = product_type.get()
-    product_name1 = product_name.get()
-    print(product_name1, product_type1, product_amount1)
-    products.append(Products(product_name1, product_type1, product_amount1))
-    print(products)
+    product_amount1 = product_amount.get()
+    
+    if not product_breed_name1:
+        showinfo("Kļūda", "Lūdzu aizpildiet produkta nosaukuma/šķirnes lodziņu.")
+        return
+    if product_type1 not in ["Dārzenis", "Auglis", "Ābols"]:
+        showinfo("Kļūda", "Lūdzu izvēlieties derīgu produkta veidu.")
+        return
+    try:
+        product_amount1 = int(product_amount1)
+    except ValueError:
+        showinfo("Kļūda", "Lūdzu ievadiet skaitli produkta daudzuma lodziņā.")
+        return
+    
+    product_list.append(Products(product_breed_name1, product_type1, product_amount1))
     change_list()
-
-
-def change_list():
-    listbox.delete(0,END)
-    for Products in products:
-        listbox.insert("end",f"{Products.name},{Products.type},{Products.amount}")
 
 def name_change_button_clicked():
     new_product_name1 = new_product_name.get()
-    for selected in listbox.curselection():
-        products[selected].name_change(new_product_name1)
+    if not new_product_name1:
+        showinfo("Kļūda", "Lūdzu aizpildiet jaunā produkta nosaukuma/šķirnes lodziņu.")
+        return
+    
+    selected_indices = product_listbox.curselection()
+    if not selected_indices:
+        showinfo("Kļūda", "Lūdzu izvēlieties produktus, kuru nosaukumu vēlaties mainīt.")
+        return
+    
+    for selected_index in selected_indices:
+        product_list[selected_index].name_change(new_product_name1)
+    
     change_list()
 
 def type_change_button_clicked():
-    for selected in listbox.curselection():
-        products[selected].type_change()
+    selected_indices = product_listbox.curselection()
+    if not selected_indices:
+        showinfo("Kļūda", "Lūdzu izvēlieties produktu, ko vēlaties pārvērst ievārījumā.")
+        return
+    
+    for selected_index in selected_indices:
+        product_list[selected_index].type_change()
+    
     change_list()
 
 def amount_change_button_clicked():
-    for selected in listbox.curselection():
-        products[selected].amount_change()
+    new_product_amount1 = new_product_amount.get()
+    
+    try:
+        new_product_amount1 = int(new_product_amount1)
+    except ValueError:
+        showinfo("Kļūda", "Lūdzu ievadiet skaitli jaunā produkta daudzuma lodziņā.")
+        return
+    
+    selected_indices = product_listbox.curselection()
+    if not selected_indices:
+        showinfo("Kļūda", "Lūdzu izvēlieties produktu, kuru daudzumu vēlaties mainīt.")
+        return
+    
+    for selected_index in selected_indices:
+        product_list[selected_index].amount_change(new_product_amount1)
+    
     change_list()
 
-production_button = ttk.Button(frame, text='Pievienot sarakstam')
-production_button.grid(column=2, row=0, sticky='W', **options)
-production_button.configure(command=add_button_clicked)
+def jam_button_clicked():
+    jam_amount1 = jam_amount.get()
+    
+    try:
+        jam_amount1 = int(jam_amount1)
+    except ValueError:
+        showinfo("Kļūda", "Lūdzu ievadiet skaitli ievārījuma daudzuma lodziņā.")
+        return
+    
+    selected_indices = product_listbox.curselection()
+    if not selected_indices:
+        showinfo("Kļūda", "Lūdzu izvēlieties produktu, ko vēlaties pārvērst ievārījumā.")
+        return
+    
+    for selected_index in selected_indices:
+        selected_product = product_list[selected_index]
+        if jam_amount1 <= selected_product.amount_repeater() / 2:
+            if selected_product.type_repeater() not in ["Ievārījums - Dārzenis", "Ievārījums - Auglis", "Ievārījums - Ābols"]:
+                jam_type = ""
+                if selected_product.type_repeater() == "Dārzenis":
+                    jam_type = "Ievārījums - Dārzenis"
+                elif selected_product.type_repeater() == "Auglis":
+                    jam_type = "Ievārījums - Auglis"
+                elif selected_product.type_repeater() == "Ābols":
+                    jam_type = "Ievārījums - Ābols"
+                
+                if jam_type:
+                    selected_product.jam(jam_amount1)
+                    product_list.append(Products(selected_product.name_repeater(), jam_type, jam_amount1))  # Add new jam
+                    change_list()
+            else:
+                showinfo("Kļūda", "No ievārījuma nevar izgatavot ievārījumu.")
+        else:
+            showinfo("Kļūda", "Nav pietiekami daudz produkta, lai izgatavotu tik daudz ievārījuma.")
 
-product_name_change_button = ttk.Button(frame, text='Produkta nosaukuma maiņa')
-product_name_change_button.grid(column=1, row=5, sticky='W', **options)
-product_name_change_button.configure(command=name_change_button_clicked)
+def delete_button_clicked():
+    selected_indices = product_listbox.curselection()
+    if not selected_indices:
+        showinfo("Kļūda", "Lūdzu izvēlieties produktu, ko vēlaties dzēst.")
+        return
+    
+    for i in reversed(selected_indices):
+        product_list.pop(i)
+    
+    change_list()
 
-product_type_change_button = ttk.Button(frame, text='Produkta veida maiņa')
-product_type_change_button.grid(column=2, row=5, sticky='W', **options)
-product_type_change_button.configure(command=type_change_button_clicked)
+def combine_button_clicked():
+    combined_products = {}
+    for product in product_list:
+        what_need_to_be_same = (product.name_repeater(), product.type_repeater())
+        if what_need_to_be_same in combined_products:
+            combined_products[what_need_to_be_same].amount_adder(product.amount_repeater())
+        else:
+            combined_products[what_need_to_be_same] = product
+    
+    product_list.clear()
+    product_list.extend(combined_products.values())
+    change_list()
 
-product_amount_button = ttk.Button(frame, text='Produkta daudzuma maiņa')
-product_amount_button.grid(column=5, row=5, sticky='W', **options)
-product_amount_button.configure(command=amount_change_button_clicked)
+def change_list():
+    product_listbox.delete(0, END)
+    for product in product_list:
+        product_listbox.insert("end", f"{product.name},{product.type},{product.amount}")
 
-listbox = tk.Listbox(frame, height=6, width=70, selectmode=tk.EXTENDED)
-listbox.grid(column=0, columnspan=3, row=4, **options)
+adding_button = ttk.Button(frame, text='Pievienot produktu sarakstam', command=add_button_clicked)
+adding_button.grid(column=2, row=0, **options)
 
-label2 = ttk.Label(frame)
-label2.grid(row=4, columnspan=3, **options)
+product_name_change_button = ttk.Button(frame, text='Produkta nosaukuma/šķirnes maiņa', command=name_change_button_clicked)
+product_name_change_button.grid(column=1, sticky="W", row=6, **options)
+
+product_type_change_button = ttk.Button(frame, text='Produkta veida maiņa', command=type_change_button_clicked)
+product_type_change_button.grid(column=2, row=6, **options)
+
+product_amount_button = ttk.Button(frame, text='Produkta daudzuma maiņa', command=amount_change_button_clicked)
+product_amount_button.grid(column=1, row=7, sticky="W", **options)
+
+jam_button = ttk.Button(frame, text='Taisīt ievārījumu', command=jam_button_clicked)
+jam_button.grid(column=1, row=8, sticky="W", **options)
+
+combine_button = ttk.Button(frame, text='Savienot dublikātus', command=combine_button_clicked)
+combine_button.grid(column=2, row=7, **options)
+
+delete_button = ttk.Button(frame, text='Izdzēst no saraksta', command=delete_button_clicked)
+delete_button.grid(column=2, row=8, **options)
+
+product_listbox = tk.Listbox(frame, height=20, width=80, selectmode=tk.EXTENDED)
+product_listbox.grid(column=0, columnspan=3, row=5, **options)
 
 frame.grid(padx=10, pady=10)
 

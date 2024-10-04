@@ -15,19 +15,24 @@ class Products:
         if self.type == "Auglis":
             self.type = "Dārzenis"
         elif self.type == "Dārzenis":
+            self.type = "Ābols"
+        elif self.type == "Ābols":
             self.type = "Auglis"
 
     def amount_change(self, new_product_amount):
         self.amount = new_product_amount
-
-# class Women(Person):
     
-#     def __init__(self, name, haircolor, age = 0):
-#         super().__init__(name,"S", age)
-#         self.haircolor = haircolor
-
-# class Men(Person):
+    def jam(self, jam_amount):
+        self.amount = self.amount-jam_amount*2
     
-#     def __init__(self, name, hobby, age = 0):
-#         super().__init__(name,"S", age)
-#         self.hobby = hobby
+    def name_repeater(self):
+        return self.name
+
+    def amount_repeater(self):
+        return self.amount
+    
+    def type_repeater(self):
+        return self.type
+
+    def amount_adder(self, amountading):
+        self.amount = int(self.amount) + int(amountading)
