@@ -12,7 +12,7 @@ product_list = []
 # Tkinter loga izveide
 root = tk.Tk()
 root.title('Ražas uzskaite')
-root.geometry('1280x720')
+root.geometry('540x720')
 root.resizable(False, False)
 
 # Rāmīša izveide
